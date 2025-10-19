@@ -1,0 +1,37 @@
+# ====== Build stage ======
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn -q -e -DskipTests dependency:go-offline
+COPY src ./src
+RUN mvn -q -DskipTests package
+
+# ====== Run stage ======
+FROM eclipse-temurin:17-jre-alpine
+ENV APP_HOME=/app \
+    JAVA_OPTS=""
+WORKDIR ${APP_HOME}
+COPY --from=build /app/target/ci-cd-demo-*.jar app.jar
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD wget -qO- http://localhost:8080/health || exit 1
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/MavenWrapperDownloader.java
+
+# IDEs
+.idea/
+.project
+.classpath
+.settings/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
