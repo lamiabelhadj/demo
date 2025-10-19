@@ -1,4 +1,7 @@
-target/
+# keep target ignored to reduce context, but allow jars
+target/*
+!target/*.jar
+
 .mvn/wrapper/maven-wrapper.jar
 .mvn/wrapper/maven-wrapper.properties
 .mvn/wrapper/MavenWrapperDownloader.java
